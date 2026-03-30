@@ -15,17 +15,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // 3D libs only loaded on Landing — keep out of main bundle
-          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
-          // Chart libs only loaded on Dashboard / PlanDetail
-          'chart-vendor': ['recharts'],
-          // PDF export only triggered on user action
-          'pdf-vendor': ['jspdf', 'html2canvas'],
-          // Core React ecosystem
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          // Animation
-          'motion-vendor': ['framer-motion'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (/three|@react-three/.test(id)) return 'three-vendor';
+          if (id.includes('recharts')) return 'chart-vendor';
+          if (/jspdf|html2canvas/.test(id)) return 'pdf-vendor';
+          if (/react-dom|react-router/.test(id)) return 'react-vendor';
+          if (id.includes('framer-motion')) return 'motion-vendor';
         }
       }
     }
