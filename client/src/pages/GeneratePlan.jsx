@@ -206,30 +206,6 @@ export default function GeneratePlan() {
     setStep((current) => Math.min(current + 1, steps.length - 1));
   }, []);
 
-  const handleAgeChange = useCallback((event) => setField('age', event.target.value), [setField]);
-  const handleWeightChange = useCallback((event) => setField('weight', event.target.value), [setField]);
-  const handleHeightChange = useCallback((event) => setField('height', event.target.value), [setField]);
-  const handleAllergiesChange = useCallback((event) => setField('allergies', event.target.value), [setField]);
-  const handleGoalSelect = useCallback((value) => setField('goal', value), [setField]);
-  const handleLevelSelect = useCallback((value) => setField('level', value), [setField]);
-  const handleDietSelect = useCallback((value) => setField('dietaryPreference', value), [setField]);
-  const handleWeightUnitChange = useCallback((value) => setField('weightUnit', value), [setField]);
-  const handleHeightUnitChange = useCallback((value) => setField('heightUnit', value), [setField]);
-
-  const handleEquipmentSelect = useCallback((value) => {
-    toggleEquipment(value);
-  }, [toggleEquipment]);
-
-  const handleDaysPerWeekSelect = useCallback(
-    (event) => {
-      const nextValue = Number(event.currentTarget.dataset.days);
-      if (nextValue) {
-        setField('daysPerWeek', nextValue);
-      }
-    },
-    [setField],
-  );
-
   // useMemo so this doesn't recompute on every form keystroke — only recalculates
   // when the *relevant* field for the current step actually changes
   const canContinue = useMemo(() => {
@@ -279,11 +255,26 @@ export default function GeneratePlan() {
   // useMemo so step content is only rebuilt when the step or its required form values change
   // Prevents the step UI from being recreated on every loading-message tick or unrelated state update
   const stepContent = useMemo(() => {
+    const onGoalSelect = (value) => setField('goal', value);
+    const onLevelSelect = (value) => setField('level', value);
+    const onDietSelect = (value) => setField('dietaryPreference', value);
+    const onAgeChange = (e) => setField('age', e.target.value);
+    const onWeightChange = (e) => setField('weight', e.target.value);
+    const onHeightChange = (e) => setField('height', e.target.value);
+    const onAllergiesChange = (e) => setField('allergies', e.target.value);
+    const onWeightUnitChange = (value) => setField('weightUnit', value);
+    const onHeightUnitChange = (value) => setField('heightUnit', value);
+    const onEquipmentSelect = (value) => toggleEquipment(value);
+    const onDaysPerWeekSelect = (e) => {
+      const days = Number(e.currentTarget.dataset.days);
+      if (days) setField('daysPerWeek', days);
+    };
+
     switch (step) {
       case 0:
-        return <OptionGrid items={goals} selectedValue={form.goal} onSelect={handleGoalSelect} />;
+        return <OptionGrid items={goals} selectedValue={form.goal} onSelect={onGoalSelect} />;
       case 1:
-        return <OptionGrid items={levels} selectedValue={form.level} onSelect={handleLevelSelect} />;
+        return <OptionGrid items={levels} selectedValue={form.level} onSelect={onLevelSelect} />;
       case 2:
         return (
           <div className="card overflow-visible p-6 md:p-8">
@@ -296,7 +287,7 @@ export default function GeneratePlan() {
                 <input
                   type="number"
                   value={form.age}
-                  onChange={handleAgeChange}
+                  onChange={onAgeChange}
                   className={metricInputClass}
                   placeholder="25"
                   min="14"
@@ -313,13 +304,13 @@ export default function GeneratePlan() {
                   <input
                     type="number"
                     value={form.weight}
-                    onChange={handleWeightChange}
+                    onChange={onWeightChange}
                     className={metricInputClass}
                     placeholder="70"
                   />
                   <UnitDropdown
                     value={form.weightUnit}
-                    onChange={handleWeightUnitChange}
+                    onChange={onWeightUnitChange}
                     options={unitOptions.weight}
                     ariaLabel="Weight unit"
                   />
@@ -335,13 +326,13 @@ export default function GeneratePlan() {
                   <input
                     type="number"
                     value={form.height}
-                    onChange={handleHeightChange}
+                    onChange={onHeightChange}
                     className={metricInputClass}
                     placeholder="170"
                   />
                   <UnitDropdown
                     value={form.heightUnit}
-                    onChange={handleHeightUnitChange}
+                    onChange={onHeightUnitChange}
                     options={unitOptions.height}
                     ariaLabel="Height unit"
                   />
@@ -361,7 +352,7 @@ export default function GeneratePlan() {
                         key={dayCount}
                         type="button"
                         data-days={dayCount}
-                        onClick={handleDaysPerWeekSelect}
+                        onClick={onDaysPerWeekSelect}
                         className="rounded-xl px-5 py-3 text-sm font-semibold"
                         style={{
                           background: active ? 'var(--gradient-accent)' : 'rgba(255,255,255,0.05)',
@@ -384,14 +375,14 @@ export default function GeneratePlan() {
       case 3:
         return (
           <div className="space-y-6">
-            <OptionGrid items={dietOptions} selectedValue={form.dietaryPreference} onSelect={handleDietSelect} />
+            <OptionGrid items={dietOptions} selectedValue={form.dietaryPreference} onSelect={onDietSelect} />
 
             <div className="card p-6 md:p-8">
               <label className="label">Allergies or foods to avoid</label>
               <input
                 type="text"
                 value={form.allergies}
-                onChange={handleAllergiesChange}
+                onChange={onAllergiesChange}
                 className={metricInputClass}
                 placeholder="For example: nuts, dairy"
               />
@@ -403,23 +394,14 @@ export default function GeneratePlan() {
           <OptionGrid
             items={equipmentList}
             selectedValues={form.equipment}
-            onSelect={handleEquipmentSelect}
+            onSelect={onEquipmentSelect}
             multi
           />
         );
       default:
         return null;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    step,
-    form.goal, form.level,
-    form.age, form.weight, form.weightUnit, form.height, form.heightUnit, form.daysPerWeek,
-    form.dietaryPreference, form.allergies, form.equipment,
-    handleGoalSelect, handleLevelSelect, handleAgeChange, handleWeightChange, handleHeightChange,
-    handleWeightUnitChange, handleHeightUnitChange, handleDaysPerWeekSelect,
-    handleDietSelect, handleAllergiesChange, handleEquipmentSelect,
-  ]);
+  }, [step, form, toggleEquipment, setField]);
 
   const StepIcon = steps[step].icon;
 

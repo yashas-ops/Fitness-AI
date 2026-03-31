@@ -22,6 +22,7 @@ export default defineConfig({
           if (/jspdf|html2canvas/.test(id)) return 'pdf-vendor';
           if (/react-dom|react-router/.test(id)) return 'react-vendor';
           if (id.includes('framer-motion')) return 'motion-vendor';
+          if (/axios/.test(id)) return 'api-vendor';
         }
       }
     }

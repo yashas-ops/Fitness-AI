@@ -10,15 +10,26 @@ import {
 } from 'recharts';
 
 function ProgressChart({ skills }) {
-  if (!skills) return null;
+  const chartData = useMemo(() => {
+    if (!skills) {
+      return [
+        { skill: 'Strength', value: 1, fullMark: 10 },
+        { skill: 'Endurance', value: 1, fullMark: 10 },
+        { skill: 'Flexibility', value: 1, fullMark: 10 },
+        { skill: 'Balance', value: 1, fullMark: 10 },
+        { skill: 'Cardio', value: 1, fullMark: 10 },
+      ];
+    }
+    return [
+      { skill: 'Strength', value: skills.strength?.level || 1, fullMark: 10 },
+      { skill: 'Endurance', value: skills.endurance?.level || 1, fullMark: 10 },
+      { skill: 'Flexibility', value: skills.flexibility?.level || 1, fullMark: 10 },
+      { skill: 'Balance', value: skills.balance?.level || 1, fullMark: 10 },
+      { skill: 'Cardio', value: skills.cardio?.level || 1, fullMark: 10 },
+    ];
+  }, [skills]);
 
-  const chartData = useMemo(() => [
-    { skill: 'Strength', value: skills.strength?.level || 1, fullMark: 10 },
-    { skill: 'Endurance', value: skills.endurance?.level || 1, fullMark: 10 },
-    { skill: 'Flexibility', value: skills.flexibility?.level || 1, fullMark: 10 },
-    { skill: 'Balance', value: skills.balance?.level || 1, fullMark: 10 },
-    { skill: 'Cardio', value: skills.cardio?.level || 1, fullMark: 10 },
-  ], [skills]);
+  if (!skills) return null;
 
   return (
     <motion.div
